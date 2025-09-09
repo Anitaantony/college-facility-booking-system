@@ -1,0 +1,21 @@
+// Add this test route to userRoutes.js
+router.get('/test-db-connection', isLoggedIn, async (req, res) => {
+  try {
+    const facilityCount = await Facility.countDocuments();
+    const bookingCount = await Booking.countDocuments();
+    
+    res.json({
+      message: 'Database connection successful ✅',
+      collections: {
+        facilities: facilityCount,
+        bookings: bookingCount
+      },
+      user: req.session.user._id
+    });
+  } catch (error) {
+    res.json({
+      error: 'Database connection failed ❌',
+      details: error.message
+    });
+  }
+});
