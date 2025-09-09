@@ -15,4 +15,16 @@ router.get("/dashboard", isUser, (req, res) => {
   res.render("user/dashboard");
 });
 
+// User Profile Route
+router.get("/profile", isUser, async (req, res) => {
+  try {
+    const user = req.session.user; // user stored in session during login
+    res.render("user/profile", { user });
+  } catch (err) {
+    console.error(err);
+    res.redirect("/user/dashboard");
+  }
+});
+
+
 module.exports = router;
