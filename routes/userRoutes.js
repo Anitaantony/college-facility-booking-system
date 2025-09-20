@@ -107,13 +107,61 @@ router.post('/book-facility', isLoggedIn, async (req, res) => {
   }
 });
 
-// Dashboard route
-router.get('/dashboard', isLoggedIn, (req, res) => {
-  res.render('user/dashboard', {
-    title: 'User Dashboard',
-    user: req.session.user
-  });
+// Replace your existing dashboard route with this enhanced version:
+
+router.get('/dashboard', isLoggedIn, async (req, res) => {
+  try {
+    // Find current user
+    const currentUser = await User.findOne({ 
+      user_email: req.session.user.email 
+    });
+
+    let stats = {
+      totalBookings: 0,
+      pendingBookings: 0,
+      approvedBookings: 0,
+      availableFacilities: 0,
+      recentBookings: []
+    };
+
+    if (currentUser) {
+      // Get user's booking statistics
+      const userBookings = await Booking.find({ user: currentUser._id });
+      
+      stats.totalBookings = userBookings.length;
+      stats.pendingBookings = userBookings.filter(b => b.status === 'Pending').length;
+      stats.approvedBookings = userBookings.filter(b => b.status === 'Approved').length;
+      
+      // Get recent bookings with facility details
+      stats.recentBookings = await Booking.find({ user: currentUser._id })
+        .populate('facility', 'facility_name facility_type')
+        .sort({ createdAt: -1 })
+        .limit(5);
+    }
+
+    // Get available facilities count
+    stats.availableFacilities = await Facility.countDocuments({ status: 'active' });
+
+    res.render('user/dashboard', {
+      title: 'Dashboard - EduNexus',
+      user: req.session.user,
+      ...stats
+    });
+    
+  } catch (error) {
+    console.error('Dashboard error:', error);
+    res.render('user/dashboard', {
+      title: 'Dashboard - EduNexus',
+      user: req.session.user,
+      totalBookings: 0,
+      pendingBookings: 0,
+      approvedBookings: 0,
+      availableFacilities: 0,
+      recentBookings: []
+    });
+  }
 });
+
 
 // User Profile Route
 router.get("/profile", isLoggedIn, async (req, res) => {
@@ -125,7 +173,77 @@ router.get("/profile", isLoggedIn, async (req, res) => {
     res.redirect("/user/dashboard");
   }
 });
+// Add this AFTER your profile route, BEFORE module.exports
 
+// GET bookings history (for sidebar "Bookings" link)
+router.get('/bookings', isLoggedIn, async (req, res) => {
+  try {
+    // Find current user
+    const currentUser = await User.findOne({ 
+      user_email: req.session.user.email 
+    });
+    
+    if (!currentUser) {
+      return res.render('error', { 
+        message: 'User not found',
+        user: req.session.user 
+      });
+    }
+
+    // Get user's bookings with facility details
+    const bookings = await Booking.find({ user: currentUser._id })
+      .populate('facility', 'facility_name facility_type location capacity')
+      .populate('user', 'user_name user_email')
+      .sort({ createdAt: -1 });
+
+    res.render('user/bookings', {
+      title: 'My Bookings - EduNexus',
+      user: req.session.user,
+      bookings: bookings
+    });
+
+  } catch (error) {
+    console.error('Error fetching user bookings:', error);
+    res.render('error', { 
+      message: 'Unable to load your bookings',
+      user: req.session.user 
+    });
+  }
+});
+router.get('/bookings', isLoggedIn, async (req, res) => {
+  try {
+    // Find current user
+    const currentUser = await User.findOne({ 
+      user_email: req.session.user.email 
+    });
+    
+    if (!currentUser) {
+      return res.render('error', { 
+        message: 'User not found',
+        user: req.session.user 
+      });
+    }
+
+    // Get user's bookings with facility details
+    const bookings = await Booking.find({ user: currentUser._id })
+      .populate('facility', 'facility_name facility_type location capacity')
+      .populate('user', 'user_name user_email')
+      .sort({ createdAt: -1 });
+
+    res.render('user/bookings', {
+      title: 'My Bookings - EduNexus',
+      user: req.session.user,
+      bookings: bookings
+    });
+
+  } catch (error) {
+    console.error('Error fetching user bookings:', error);
+    res.render('error', { 
+      message: 'Unable to load your bookings',
+      user: req.session.user 
+    });
+  }
+});
 
 module.exports = router;
 // Add this route to your existing routes/userRoutes.js file
