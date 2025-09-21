@@ -247,3 +247,271 @@ router.post("/manageFacilities/toggle/:id", isAdmin, async (req, res) => {
 });
 
 module.exports = router;
+// Manage Bookings - GET (View all bookings)
+router.get("/manageBookings", isAdmin, async (req, res) => {
+  try {
+    // Get all bookings with user and facility details
+    const bookings = await Booking.find({})
+      .populate('user', 'user_name user_email user_id')
+      .populate('facility', 'facility_name facility_type location')
+      .sort({ createdAt: -1 });
+    
+    res.render('admin/manageBookings', {
+      title: 'Manage Bookings - EduNexus Admin',
+      bookings: bookings,
+      success: req.query.success || null,
+      error: req.query.error || null
+    });
+
+  } catch (error) {
+    console.error('Error fetching bookings:', error);
+    res.render('admin/manageBookings', {
+      title: 'Manage Bookings - EduNexus Admin',
+      bookings: [],
+      success: null,
+      error: 'Failed to load bookings'
+    });
+  }
+});
+
+// Update Booking Status - POST
+router.post("/manageBookings/updateStatus/:id", isAdmin, async (req, res) => {
+  try {
+    const { status, reason } = req.body;
+    const validStatuses = ['Pending', 'Approved', 'Rejected'];
+    
+    if (!validStatuses.includes(status)) {
+      return res.redirect('/admin/manageBookings?error=Invalid status');
+    }
+
+    const updateData = { 
+      status,
+      updatedAt: new Date()
+    };
+    
+    // Add rejection reason if status is Rejected
+    if (status === 'Rejected' && reason) {
+      updateData.rejectionReason = reason;
+    }
+
+    await Booking.findByIdAndUpdate(req.params.id, updateData);
+    
+    res.redirect('/admin/manageBookings?success=Booking status updated successfully!');
+  } catch (error) {
+    console.error('Error updating booking status:', error);
+    res.redirect('/admin/manageBookings?error=Failed to update booking status');
+  }
+});
+
+// Delete Booking - POST
+router.post("/manageBookings/delete/:id", isAdmin, async (req, res) => {
+  try {
+    await Booking.findByIdAndDelete(req.params.id);
+    res.redirect('/admin/manageBookings?success=Booking deleted successfully!');
+  } catch (error) {
+    console.error('Error deleting booking:', error);
+    res.redirect('/admin/manageBookings?error=Failed to delete booking');
+  }
+});
+
+// View Booking Details - GET
+router.get("/manageBookings/details/:id", isAdmin, async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id)
+      .populate('user', 'user_name user_email user_id')
+      .populate('facility', 'facility_name facility_type location capacity');
+    
+    if (!booking) {
+      return res.redirect('/admin/manageBookings?error=Booking not found');
+    }
+    
+    res.json(booking);
+  } catch (error) {
+    console.error('Error fetching booking details:', error);
+    res.json({ error: 'Failed to load booking details' });
+  }
+});
+// Manage Users - GET (View all users)
+router.get("/manageUsers", isAdmin, async (req, res) => {
+  try {
+    // Get all users with their booking statistics
+    const users = await User.find({}).sort({ createdAt: -1 });
+    
+    // Get booking counts for each user
+    const usersWithStats = await Promise.all(
+      users.map(async (user) => {
+        const totalBookings = await Booking.countDocuments({ user: user._id });
+        const pendingBookings = await Booking.countDocuments({ user: user._id, status: 'Pending' });
+        const approvedBookings = await Booking.countDocuments({ user: user._id, status: 'Approved' });
+        
+        return {
+          ...user.toObject(),
+          stats: {
+            totalBookings,
+            pendingBookings,
+            approvedBookings
+          }
+        };
+      })
+    );
+    
+    res.render('admin/manageUsers', {
+      title: 'Manage Users - EduNexus Admin',
+      users: usersWithStats,
+      success: req.query.success || null,
+      error: req.query.error || null
+    });
+
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.render('admin/manageUsers', {
+      title: 'Manage Users - EduNexus Admin',
+      users: [],
+      success: null,
+      error: 'Failed to load users'
+    });
+  }
+});
+
+// Add New User - POST
+router.post("/manageUsers/add", isAdmin, async (req, res) => {
+  try {
+    const { user_name, user_email, user_type, password } = req.body;
+    
+    // Validation
+    if (!user_name || !user_email || !user_type || !password) {
+      return res.redirect('/admin/manageUsers?error=All fields are required');
+    }
+
+    // Check if email already exists
+    const existingUser = await User.findOne({ user_email: user_email.toLowerCase() });
+    if (existingUser) {
+      return res.redirect('/admin/manageUsers?error=Email already exists');
+    }
+
+    // Generate unique user_id
+    const lastUser = await User.findOne().sort({ user_id: -1 });
+    const newUserId = lastUser ? lastUser.user_id + 1 : 1001;
+
+    // Create new user
+    const userData = {
+      user_id: newUserId,
+      user_name: user_name.trim(),
+      user_email: user_email.toLowerCase().trim(),
+      user_type,
+      user_password: password, // This will be hashed by the model
+      profile_picture: null,
+      registration_date: new Date()
+    };
+
+    const newUser = new User(userData);
+    await newUser.save();
+    
+    res.redirect('/admin/manageUsers?success=User added successfully!');
+    
+  } catch (error) {
+    console.error('Error adding user:', error);
+    
+    if (error.code === 11000) {
+      return res.redirect('/admin/manageUsers?error=Email already exists');
+    }
+    
+    res.redirect('/admin/manageUsers?error=Failed to add user: ' + error.message);
+  }
+});
+
+// Update User - POST
+router.post("/manageUsers/update/:id", isAdmin, async (req, res) => {
+  try {
+    const { user_name, user_email, user_type } = req.body;
+    
+    // Check if email is taken by another user
+    const existingUser = await User.findOne({ 
+      user_email: user_email.toLowerCase(),
+      _id: { $ne: req.params.id }
+    });
+    
+    if (existingUser) {
+      return res.redirect('/admin/manageUsers?error=Email already exists');
+    }
+
+    await User.findByIdAndUpdate(req.params.id, {
+      user_name: user_name.trim(),
+      user_email: user_email.toLowerCase().trim(),
+      user_type
+    });
+    
+    res.redirect('/admin/manageUsers?success=User updated successfully!');
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.redirect('/admin/manageUsers?error=Failed to update user: ' + error.message);
+  }
+});
+
+// Delete User - POST
+router.post("/manageUsers/delete/:id", isAdmin, async (req, res) => {
+  try {
+    // Check if user has bookings
+    const userBookings = await Booking.countDocuments({ user: req.params.id });
+    
+    if (userBookings > 0) {
+      return res.redirect('/admin/manageUsers?error=Cannot delete user with existing bookings');
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+    res.redirect('/admin/manageUsers?success=User deleted successfully!');
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.redirect('/admin/manageUsers?error=Failed to delete user');
+  }
+});
+
+// Reset User Password - POST
+router.post("/manageUsers/resetPassword/:id", isAdmin, async (req, res) => {
+  try {
+    const { newPassword } = req.body;
+    
+    if (!newPassword || newPassword.length < 6) {
+      return res.redirect('/admin/manageUsers?error=Password must be at least 6 characters long');
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.redirect('/admin/manageUsers?error=User not found');
+    }
+
+    user.user_password = newPassword; // This will be hashed by the model
+    await user.save();
+    
+    res.redirect('/admin/manageUsers?success=Password reset successfully!');
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    res.redirect('/admin/manageUsers?error=Failed to reset password');
+  }
+});
+
+// Get User Details - GET
+router.get("/manageUsers/details/:id", isAdmin, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.json({ error: 'User not found' });
+    }
+    
+    // Get user's recent bookings
+    const recentBookings = await Booking.find({ user: user._id })
+      .populate('facility', 'facility_name facility_type')
+      .sort({ createdAt: -1 })
+      .limit(5);
+    
+    const userWithBookings = {
+      ...user.toObject(),
+      recentBookings
+    };
+    
+    res.json(userWithBookings);
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    res.json({ error: 'Failed to load user details' });
+  }
+});
