@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - EduNexus</title>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .signup-container {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 520px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .signup-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .header h1 {
+      color: #2c3e50;
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #7f8c8d;
+      font-size: 1.1rem;
+      font-weight: 400;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      color: #2c3e50;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-group .input-icon {
+      position: absolute;
+      right: 15px;
+      top: 38px;
+      color: #bdc3c7;
+      font-size: 1.1rem;
+    }
+
+    .form-group input[type="password"] {
+      padding-right: 45px;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 15px;
+      top: 38px;
+      cursor: pointer;
+      color: #bdc3c7;
+      font-size: 1.1rem;
+      transition: color 0.3s ease;
+    }
+
+    .password-toggle:hover {
+      color: #667eea;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .signup-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .signup-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .signup-btn:active {
+      transform: translateY(0);
+    }
+
+    .signup-btn .btn-text {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .login-link {
+      text-align: center;
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid #ecf0f1;
+    }
+
+    .login-link p {
+      color: #7f8c8d;
+      margin-bottom: 8px;
+    }
+
+    .login-link a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    .login-link a:hover {
+      color: #764ba2;
+      text-decoration: underline;
+    }
+
+    .error-message {
+      background: #fff5f5;
+      border: 1px solid #fed7d7;
+      color: #c53030;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    .success-message {
+      background: #f0fff4;
+      border: 1px solid #9ae6b4;
+      color: #22543d;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    .form-group small {
+      color: #7f8c8d;
+      font-size: 0.85rem;
+      margin-top: 5px;
+      display: block;
+    }
+
+    .terms-checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .terms-checkbox input[type="checkbox"] {
+      margin-top: 2px;
+      width: auto;
+    }
+
+    .terms-checkbox label {
+      font-size: 0.9rem;
+      color: #7f8c8d;
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    .terms-checkbox a {
+      color: #667eea;
+      text-decoration: none;
+    }
+
+    .terms-checkbox a:hover {
+      text-decoration: underline;
+    }
+
+    .loading-spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .signup-btn.loading .btn-text {
+      opacity: 0.7;
+    }
+
+    .signup-btn.loading .loading-spinner {
+      display: inline-block;
+    }
+
+    /* Input validation styles */
+    .form-group input.valid {
+      border-color: #27ae60;
+      background: #f0fff4;
+    }
+
+    .form-group input.invalid {
+      border-color: #e74c3c;
+      background: #fff5f5;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 600px) {
+      .signup-container {
+        padding: 30px 20px;
+        margin: 10px;
+        border-radius: 15px;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .form-group {
+        margin-bottom: 18px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+
+      .signup-container {
+        padding: 25px 15px;
+      }
+
+      .header h1 {
+        font-size: 1.6rem;
+      }
+
+      .header p {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-container">
+    <div class="header">
+      <h1>Create Account</h1>
+      <p>Join the EduNexus Facility Booking System</p>
+    </div>
+
+    <!-- Error Message -->
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        <span><%= error %></span>
+      </div>
+    <% } %>
+
+    <!-- Success Message -->
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="success-message">
+        <i class="fas fa-check-circle"></i>
+        <span><%= success %></span>
+      </div>
+    <% } %>
+
+    <form action="/auth/signup" method="POST" id="signupForm">
+      <!-- Full Name -->
+      <div class="form-group">
+        <label for="user_name">Full Name *</label>
+        <input 
+          type="text" 
+          id="user_name" 
+          name="user_name" 
+          placeholder="Enter your full name"
+          required
+          value="<%= typeof formData !== 'undefined' && formData.user_name ? formData.user_name : '' %>"
+        >
+        <i class="input-icon fas fa-user"></i>
+      </div>
+
+      <!-- Email and Phone Row -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="user_email">Email Address *</label>
+          <input 
+            type="email" 
+            id="user_email" 
+            name="user_email" 
+            placeholder="your@email.com"
+            required
+            value="<%= typeof formData !== 'undefined' && formData.user_email ? formData.user_email : '' %>"
+          >
+          <i class="input-icon fas fa-envelope"></i>
+        </div>
+
+        <div class="form-group">
+          <label for="user_contact">Phone Number *</label>
+          <input 
+            type="tel" 
+            id="user_contact" 
+            name="user_contact" 
+            placeholder="10-digit phone number"
+            required
+            maxlength="10"
+            value="<%= typeof formData !== 'undefined' && formData.user_contact ? formData.user_contact : '' %>"
+          >
+          <i class="input-icon fas fa-phone"></i>
+        </div>
+      </div>
+
+      <!-- Department -->
+      <div class="form-group">
+        <label for="dept_id">Department *</label>
+        <select id="dept_id" name="dept_id" required>
+          <option value="">Select Your Department</option>
+          <option value="CSE" <%= typeof formData !== 'undefined' && formData.dept_id === 'CSE' ? 'selected' : '' %>>Computer Science & Engineering</option>
+          <option value="ECE" <%= typeof formData !== 'undefined' && formData.dept_id === 'ECE' ? 'selected' : '' %>>Electronics & Communication</option>
+          <option value="ME" <%= typeof formData !== 'undefined' && formData.dept_id === 'ME' ? 'selected' : '' %>>Mechanical Engineering</option>
+          <option value="CE" <%= typeof formData !== 'undefined' && formData.dept_id === 'CE' ? 'selected' : '' %>>Civil Engineering</option>
+          <option value="EE" <%= typeof formData !== 'undefined' && formData.dept_id === 'EE' ? 'selected' : '' %>>Electrical Engineering</option>
+          <option value="IT" <%= typeof formData !== 'undefined' && formData.dept_id === 'IT' ? 'selected' : '' %>>Information Technology</option>
+          <option value="CHEM" <%= typeof formData !== 'undefined' && formData.dept_id === 'CHEM' ? 'selected' : '' %>>Chemical Engineering</option>
+          <option value="BIO" <%= typeof formData !== 'undefined' && formData.dept_id === 'BIO' ? 'selected' : '' %>>Biotechnology</option>
+          <option value="MBA" <%= typeof formData !== 'undefined' && formData.dept_id === 'MBA' ? 'selected' : '' %>>Management Studies</option>
+          <option value="OTHER" <%= typeof formData !== 'undefined' && formData.dept_id === 'OTHER' ? 'selected' : '' %>>Other</option>
+        </select>
+        <i class="input-icon fas fa-building"></i>
+      </div>
+
+      <!-- Password and Confirm Password Row -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="user_password">Password *</label>
+          <input 
+            type="password" 
+            id="user_password" 
+            name="user_password" 
+            placeholder="Create password"
+            required
+            minlength="6"
+          >
+          <i class="password-toggle fas fa-eye" onclick="togglePassword('user_password')"></i>
+        </div>
+
+        <div class="form-group">
+          <label for="confirm_password">Confirm Password *</label>
+          <input 
+            type="password" 
+            id="confirm_password" 
+            name="confirm_password" 
+            placeholder="Confirm password"
+            required
+            minlength="6"
+          >
+          <i class="password-toggle fas fa-eye" onclick="togglePassword('confirm_password')"></i>
+        </div>
+      </div>
+
+      <!-- Password Requirements -->
+      <div class="form-group">
+        <small>
+          <i class="fas fa-info-circle"></i>
+          Password must be at least 6 characters long
+        </small>
+      </div>
+
+      <!-- Terms and Conditions -->
+      <div class="terms-checkbox">
+        <input type="checkbox" id="terms" name="terms" required>
+        <label for="terms">
+          I agree to the <a href="#" target="_blank">Terms of Service</a> and 
+          <a href="#" target="_blank">Privacy Policy</a>
+        </label>
+      </div>
+
+      <!-- Sign Up Button -->
+      <button type="submit" class="signup-btn" id="signupBtn">
+        <div class="btn-text">
+          <i class="fas fa-user-plus"></i>
+          <span>Create Account</span>
+        </div>
+        <div class="loading-spinner"></div>
+      </button>
+    </form>
+
+    <!-- Login Link -->
+    <div class="login-link">
+      <p>Already have an account?</p>
+      <a href="/auth/login">Sign in here</a>
+    </div>
+  </div>
+
+  <script>
+    // Password visibility toggle
+    function togglePassword(inputId) {
+      const input = document.getElementById(inputId);
+      const icon = input.nextElementSibling;
+      
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
+    // Form validation and submission
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+      const password = document.getElementById('user_password').value;
+      const confirmPassword = document.getElementById('confirm_password').value;
+      const terms = document.getElementById('terms').checked;
+      const submitBtn = document.getElementById('signupBtn');
+
+      // Check if passwords match
+      if (password !== confirmPassword) {
+        e.preventDefault();
+        alert('Passwords do not match!');
+        return;
+      }
+
+      // Check if terms are accepted
+      if (!terms) {
+        e.preventDefault();
+        alert('Please accept the Terms of Service and Privacy Policy!');
+        return;
+      }
+
+      // Show loading state
+      submitBtn.classList.add('loading');
+      submitBtn.disabled = true;
+    });
+
+    // Real-time password matching
+    document.getElementById('confirm_password').addEventListener('input', function() {
+      const password = document.getElementById('user_password').value;
+      const confirmPassword = this.value;
+      
+      if (confirmPassword && password !== confirmPassword) {
+        this.classList.add('invalid');
+        this.classList.remove('valid');
+      } else if (confirmPassword && password === confirmPassword) {
+        this.classList.add('valid');
+        this.classList.remove('invalid');
+      } else {
+        this.classList.remove('valid', 'invalid');
+      }
+    });
+
+    // Email validation feedback
+    document.getElementById('user_email').addEventListener('blur', function() {
+      const email = this.value;
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      
+      if (email && !emailPattern.test(email)) {
+        this.classList.add('invalid');
+        this.classList.remove('valid');
+      } else if (email && emailPattern.test(email)) {
+        this.classList.add('valid');
+        this.classList.remove('invalid');
+      } else {
+        this.classList.remove('valid', 'invalid');
+      }
+    });
+
+    // Phone validation - only numbers
+    document.getElementById('user_contact').addEventListener('input', function() {
+      // Only allow numbers
+      this.value = this.value.replace(/[^0-9]/g, '');
+      
+      // Validate length
+      if (this.value.length === 10) {
+        this.classList.add('valid');
+        this.classList.remove('invalid');
+      } else if (this.value.length > 0) {
+        this.classList.add('invalid');
+        this.classList.remove('valid');
+      } else {
+        this.classList.remove('valid', 'invalid');
+      }
+    });
+
+    // Name validation
+    document.getElementById('user_name').addEventListener('blur', function() {
+      if (this.value.trim().length >= 2) {
+        this.classList.add('valid');
+        this.classList.remove('invalid');
+      } else if (this.value.trim().length > 0) {
+        this.classList.add('invalid');
+        this.classList.remove('valid');
+      } else {
+        this.classList.remove('valid', 'invalid');
+      }
+    });
+
+    // Password strength indicator
+    document.getElementById('user_password').addEventListener('input', function() {
+      if (this.value.length >= 6) {
+        this.classList.add('valid');
+        this.classList.remove('invalid');
+      } else if (this.value.length > 0) {
+        this.classList.add('invalid');
+        this.classList.remove('valid');
+      } else {
+        this.classList.remove('valid', 'invalid');
+      }
+    });
+
+    // Remove loading state if form submission fails
+    window.addEventListener('pageshow', function() {
+      const submitBtn = document.getElementById('signupBtn');
+      submitBtn.classList.remove('loading');
+      submitBtn.disabled = false;
+    });
+  </script>
+</body>
+</html>
