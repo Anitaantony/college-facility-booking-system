@@ -116,7 +116,7 @@ router.get('/dashboard', isLoggedIn, (req, res) => {
 });
 
 // User Profile Route
-router.get("/profile", isUser, async (req, res) => {
+router.get("/profile", async (req, res) => {
   try {
     const user = req.session.user; // user stored in session during login
     res.render("user/profile", { user });
