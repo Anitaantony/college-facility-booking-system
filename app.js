@@ -43,16 +43,19 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
 
 /* ---------------------------
-   Routes
+   Routes (FIXED ORDER)
 ---------------------------- */
 const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes");
 const indexRoutes = require("./routes/index");
 const authRoutes = require("./routes/authRoutes");
+const notificationRoutes = require('./routes/notificationRoutes');
 
+// IMPORTANT: Register notification routes BEFORE general user routes
 app.use("/", indexRoutes);
 app.use("/admin", adminRoutes);
-app.use("/user", userRoutes);
+app.use("/user/notifications", notificationRoutes); // 🔑 THIS MUST BE FIRST
+app.use("/user", userRoutes);                       // 🔑 THIS MUST BE AFTER
 app.use("/auth", authRoutes);
 
 // 404 Page
@@ -61,59 +64,16 @@ app.use((req, res) => {
 });
 
 /* ---------------------------
-   Insert Sample Users
----------------------------- */
-/*
-async function insertSampleUsers() {
-  try {
-    // Check if "anu" already exists
-    const existingUser = await User.findOne({ user_email: "anu@gmail.com" });
-    if (existingUser) {
-      console.log("✅ Sample users already exist, skipping insert.");
-      return;
-    }
-
-    // Sample user data
-    const users = [
-      
-      {
-        user_id: 1,
-        user_name: "Admin",
-        user_email: "admin@gmail.com",
-        user_contact: "9876543210",
-        dept_id: 101,
-        password: await bcrypt.hash("admin@", 10), // hashed password
-        user_type: "admin",
-      },
-      
-      {
-        user_id: 5,
-        user_name: "anu",
-        user_email: "anu@gmail.com",
-        user_contact: "8989007656",
-        dept_id: 102,
-        password: await bcrypt.hash("anu@", 10), // hashed password
-        user_type: "user",
-      },
-    ];
-
-    // Insert users
-    await User.insertMany(users);
-    console.log("Sample users inserted successfully!");
-  } catch (err) {
-    console.error("Error inserting sample users:", err);
-  }
-}*/
-
-/* ---------------------------
    Start Server
 ---------------------------- */
 connectToDatabase()
   .then(async () => {
+    console.log("✅ Database connected successfully");
+    console.log("✅ Notification system initialized");
     app.listen(PORT, () =>
-      console.log(`Server running at http://localhost:${PORT}`)
+      console.log(`🚀 Server running at http://localhost:${PORT}`)
     );
   })
   .catch((err) => {
-    console.error("Failed to connect to database:", err);
+    console.error("❌ Failed to connect to database:", err);
   });

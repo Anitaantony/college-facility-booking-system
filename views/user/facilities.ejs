@@ -11,199 +11,352 @@
   <!-- Custom Styles -->
   <link rel="stylesheet" href="/css/dstyle.css" />
   <style>
-    .facilities-page {
-      background-color: #f8f9fa;
+    /* College Background Image */
+    body {
+      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                  url('/images/clg.jpg') center/cover no-repeat fixed;
       min-height: 100vh;
+    }
+
+    .facilities-page {
+      margin-top: 80px;
       padding: 20px 0;
+      position: relative;
+      z-index: 1;
     }
     
+    /* Compact Header */
     .facilities-header {
-      background: white;
-      padding: 30px 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 25px 0;
       margin-bottom: 30px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      border-radius: 15px;
+      margin: 0 20px 30px 20px;
     }
     
     .facilities-header h1 {
       text-align: center;
       color: #2c3e50;
       font-size: 2.2rem;
-      font-weight: 600;
+      font-weight: 800;
       margin: 0;
+      background: linear-gradient(135deg, #667eea, #1506e2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
     }
     
     .facilities-header p {
       text-align: center;
-      color: #6c757d;
+      color: #5a67d8;
       font-size: 1.1rem;
+      font-weight: 600;
       margin: 10px 0 0 0;
     }
     
     .facilities-container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
       padding: 0 20px;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 25px;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
     }
     
+    /* Compact Facility Cards */
     .facility-card {
-      background: white;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
       transition: all 0.3s ease;
-      border: 1px solid #e9ecef;
+      position: relative;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .facility-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.1));
+      pointer-events: none;
+      z-index: 1;
     }
     
     .facility-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     }
     
+    /* Smaller Image Section */
     .facility-image {
       width: 100%;
-      height: 220px;
+      height: 180px;
       object-fit: cover;
-      background: linear-gradient(45deg, #74b9ff, #0984e3);
+      background: linear-gradient(135deg, #667eea, #1506e2);
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
-      font-size: 3rem;
+      font-size: 2.5rem;
+      position: relative;
+      z-index: 2;
     }
     
+    /* Compact Content */
     .facility-content {
-      padding: 20px;
+      padding: 18px;
+      position: relative;
+      z-index: 2;
     }
     
     .facility-title {
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: #2c3e50;
-      margin-bottom: 10px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #2d3748;
+      margin-bottom: 8px;
+      line-height: 1.3;
     }
     
     .facility-type {
       display: inline-block;
-      background: #e3f2fd;
-      color: #1976d2;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      margin-bottom: 15px;
+      background: linear-gradient(135deg, #667eea, #1506e2);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 15px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
     
+    /* Fixed text truncation with proper browser support */
     .facility-description {
-      color: #6c757d;
-      font-size: 0.95rem;
-      line-height: 1.6;
+      color: #4a5568;
+      font-size: 0.9rem;
+      line-height: 1.5;
       margin-bottom: 15px;
+      font-weight: 500;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      line-clamp: 2;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     
+    /* Compact Details Grid */
     .facility-details {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 15px;
+      gap: 8px;
+      margin-bottom: 12px;
     }
     
     .facility-detail {
       display: flex;
       align-items: center;
-      font-size: 0.9rem;
-      color: #495057;
+      font-size: 0.8rem;
+      color: #2d3748;
+      font-weight: 600;
+      background: rgba(102, 126, 234, 0.1);
+      padding: 5px 8px;
+      border-radius: 6px;
     }
     
     .facility-detail i {
-      width: 20px;
-      color: #74b9ff;
-      margin-right: 8px;
+      width: 16px;
+      color: #667eea;
+      margin-right: 6px;
+      font-size: 0.9rem;
     }
     
+    /* Compact Amenities */
     .facility-amenities {
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
     
     .amenity-tag {
       display: inline-block;
-      background: #f8f9fa;
+      background: rgba(255, 255, 255, 0.9);
       color: #495057;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      margin-right: 5px;
-      margin-bottom: 5px;
-      border: 1px solid #e9ecef;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-right: 4px;
+      margin-bottom: 4px;
+      border: 1px solid rgba(102, 126, 234, 0.2);
     }
     
     .facility-status {
       text-align: center;
-      padding-top: 15px;
-      border-top: 1px solid #e9ecef;
+      padding-top: 12px;
+      border-top: 1px solid rgba(226, 232, 240, 0.6);
     }
     
     .status-active {
-      color: #28a745;
-      font-weight: 600;
+      color: #38a169;
+      font-weight: 700;
+      font-size: 0.9rem;
     }
     
     .status-inactive {
-      color: #dc3545;
-      font-weight: 600;
+      color: #e53e3e;
+      font-weight: 700;
+      font-size: 0.9rem;
     }
     
     .book-button {
-      background: #74b9ff;
+      background: linear-gradient(135deg, #667eea, #1506e2);
       color: white;
       border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-size: 0.9rem;
-      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: all 0.3s ease;
       text-decoration: none;
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       margin-top: 10px;
+      box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
     }
     
     .book-button:hover {
-      background: #0984e3;
+      background: linear-gradient(135deg, #1506e2, #667eea);
       color: white;
       text-decoration: none;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
     }
     
     .no-facilities {
       text-align: center;
       padding: 60px 20px;
-      color: #6c757d;
+      color: #4a5568;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      grid-column: 1 / -1;
     }
-    .facilities-page {
-  margin-top: 80px; /* Adjust based on your header height */
-  padding-top: 20px;
-}
-
     
     .no-facilities i {
       font-size: 4rem;
-      color: #dee2e6;
+      color: #667eea;
       margin-bottom: 20px;
+      opacity: 0.7;
     }
-    
+
+    .no-facilities h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 10px;
+    }
+
+    .no-facilities p {
+      font-size: 1rem;
+      color: #4a5568;
+      font-weight: 500;
+    }
+
+    /* Loading Animation */
+    .facilities-page {
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      .facilities-container {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 18px;
+      }
+    }
+
     @media (max-width: 768px) {
       .facilities-container {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         padding: 0 15px;
+        gap: 15px;
       }
       
       .facility-details {
         grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .facilities-header {
+        margin: 0 15px 25px 15px;
+        padding: 20px 15px;
+      }
+
+      .facilities-header h1 {
+        font-size: 1.8rem;
+      }
+
+      .facilities-header p {
+        font-size: 1rem;
+      }
+
+      .facility-image {
+        height: 150px;
+        font-size: 2rem;
+      }
+
+      .facility-content {
+        padding: 15px;
       }
     }
-  </style>
+
+    @media (max-width: 480px) {
+      .facilities-container {
+        grid-template-columns: 1fr;
+        padding: 0 10px;
+        gap: 12px;
+      }
+
+      .facility-content {
+        padding: 12px;
+      }
+
+      .facility-title {
+        font-size: 1.1rem;
+      }
+
+      .facility-card {
+        max-width: none;
+      }
+    }
+</style>
+
+
 </head>
 <body>
   <!-- Include Header -->
@@ -237,7 +390,7 @@
               <span class="facility-type"><%= facility.facility_type %></span>
               
               <p class="facility-description">
-                <%= facility.description || 'Modern facility equipped with latest amenities for your needs.' %>
+                <%= facility.description || 'Modern facility equipped with latest amenities for your academic and extracurricular needs.' %>
               </p>
               
               <!-- Facility Details -->
@@ -255,7 +408,7 @@
                   <span><%= facility.availability_hours.start %> - <%= facility.availability_hours.end %></span>
                 </div>
                 <div class="facility-detail">
-                  <i class="fas fa-calendar"></i>
+                  <i class="fas fa-id-card"></i>
                   <span>ID: <%= facility.facility_id %></span>
                 </div>
               </div>
@@ -272,12 +425,12 @@
               <!-- Status and Book Button -->
               <div class="facility-status">
                 <div class="<%= facility.status === 'active' ? 'status-active' : 'status-inactive' %>">
-                  <i class="fas fa-circle"></i> <%= facility.status === 'active' ? 'Available' : 'Not Available' %>
+                  <i class="fas fa-circle"></i> <%= facility.status === 'active' ? 'Available for Booking' : 'Currently Unavailable' %>
                 </div>
                 
                 <% if (facility.status === 'active') { %>
                   <a href="/user/booking?facility=<%= facility.facility_name %>" class="book-button">
-                    <i class="fas fa-calendar-plus"></i> Book Now
+                    <i class="fas fa-calendar-plus"></i> Book This Facility
                   </a>
                 <% } %>
               </div>
@@ -288,13 +441,40 @@
         <div class="no-facilities">
           <i class="fas fa-building"></i>
           <h3>No Facilities Available</h3>
-          <p>Currently, there are no facilities to display. Please check back later.</p>
+          <p>Currently, there are no facilities to display. Please check back later or contact administration for more information.</p>
         </div>
       <% } %>
     </div>
   </div>
 
   <!-- Include Scripts -->
-  <script src="/js/dashboard.js"></script>
+  <script>
+    // Add smooth loading effect and debug image loading
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Facilities page loaded successfully!');
+      
+      // Test if background image loads
+      const testImg = new Image();
+      testImg.onload = function() {
+        console.log('✅ College background image (clg.jpg) loaded successfully!');
+      };
+      testImg.onerror = function() {
+        console.log('❌ College background image (clg.jpg) failed to load. Check image path.');
+      };
+      testImg.src = '/images/clg.jpg';
+
+      // Add hover effect to facility cards
+      const facilityCards = document.querySelectorAll('.facility-card');
+      facilityCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-10px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0) scale(1)';
+        });
+      });
+    });
+  </script>
 </body>
 </html>

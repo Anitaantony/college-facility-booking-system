@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Complaints - EduNexus Admin</title>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/dstyle.css" />
+  
+  <style>
+    /* College Background Image */
+    body {
+      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                  url('/images/clg.jpg') center/cover no-repeat fixed;
+      min-height: 100vh;
+    }
+
+    .complaints-page {
+      margin-top: 80px;
+      padding: 20px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Enhanced Header */
+    .complaints-header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 30px 0;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      border-radius: 15px;
+      margin: 0 20px 30px 20px;
+    }
+    
+    .complaints-header h1 {
+      text-align: center;
+      color: #2c3e50;
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+    
+    .complaints-header p {
+      text-align: center;
+      color: #5a67d8;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 10px 0 0 0;
+    }
+
+    .complaints-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Stats Cards */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 25px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .stat-card.total { border-left: 4px solid #3498db; }
+    .stat-card.pending { border-left: 4px solid #f39c12; }
+    .stat-card.resolved { border-left: 4px solid #27ae60; }
+    .stat-card.urgent { border-left: 4px solid #e74c3c; }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .total .stat-number { color: #3498db; }
+    .pending .stat-number { color: #f39c12; }
+    .resolved .stat-number { color: #27ae60; }
+    .urgent .stat-number { color: #e74c3c; }
+
+    .stat-label {
+      color: #7f8c8d;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    /* Filter Section */
+    .filter-section {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 25px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      align-items: end;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .filter-group label {
+      color: #2c3e50;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .filter-group select,
+    .filter-group input {
+      padding: 10px 15px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: border-color 0.3s ease;
+      background: white;
+    }
+
+    .filter-group select:focus,
+    .filter-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-filter,
+    .btn-clear {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-filter {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    .btn-filter:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-clear {
+      background: #95a5a6;
+      color: white;
+    }
+
+    .btn-clear:hover {
+      background: #7f8c8d;
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Complaints Table */
+    .complaints-table-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .table-header {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .table-header h3 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-export {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .btn-export:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .complaints-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .complaints-table th,
+    .complaints-table td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #ecf0f1;
+    }
+
+    .complaints-table th {
+      background: #f8f9fa;
+      font-weight: 700;
+      color: #2c3e50;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .complaints-table td {
+      color: #34495e;
+      font-size: 0.9rem;
+    }
+
+    .complaint-id {
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .complaint-subject {
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+
+    .status-badge {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .status-submitted {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-in-progress {
+      background: #cce5ff;
+      color: #0056b3;
+    }
+
+    .status-resolved {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-closed {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .priority-badge {
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .priority-low {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .priority-medium {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .priority-high {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .priority-urgent {
+      background: #f5c6cb;
+      color: #721c24;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+    }
+
+    .btn-action {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-view {
+      background: #3498db;
+      color: white;
+    }
+
+    .btn-view:hover {
+      background: #2980b9;
+      color: white;
+      text-decoration: none;
+    }
+
+    .btn-resolve {
+      background: #27ae60;
+      color: white;
+    }
+
+    .btn-resolve:hover {
+      background: #219a52;
+    }
+
+    .btn-delete {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .btn-delete:hover {
+      background: #c0392b;
+    }
+
+    .no-complaints {
+      text-align: center;
+      padding: 60px 20px;
+      color: #7f8c8d;
+    }
+
+    .no-complaints i {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: #bdc3c7;
+    }
+
+    .no-complaints h3 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      color: #34495e;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .complaints-container {
+        padding: 0 15px;
+      }
+
+      .complaints-header {
+        margin: 0 15px 25px 15px;
+        padding: 20px 15px;
+      }
+
+      .complaints-header h1 {
+        font-size: 2rem;
+      }
+
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+      }
+
+      .filter-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      .filter-buttons {
+        flex-direction: column;
+      }
+
+      .complaints-table-container {
+        overflow-x: auto;
+      }
+
+      .complaints-table {
+        min-width: 800px;
+      }
+
+      .table-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+    }
+
+    /* Loading Animation */
+    .complaints-page {
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/adminHeader') %>
+
+  <div class="complaints-page">
+    <!-- Page Header -->
+    <div class="complaints-header">
+      <h1><i class="fas fa-exclamation-circle"></i> View Complaints</h1>
+      <p>Monitor and manage all student complaints and feedback</p>
+    </div>
+
+    <div class="complaints-container">
+      <!-- Statistics Row -->
+      <div class="stats-row">
+        <div class="stat-card total">
+          <div class="stat-number">
+            <% if (typeof totalComplaints !== 'undefined') { %>
+              <%= totalComplaints %>
+            <% } else { %>
+              0
+            <% } %>
+          </div>
+          <div class="stat-label">Total Complaints</div>
+        </div>
+        <div class="stat-card pending">
+          <div class="stat-number">
+            <% if (typeof pendingComplaints !== 'undefined') { %>
+              <%= pendingComplaints %>
+            <% } else { %>
+              0
+            <% } %>
+          </div>
+          <div class="stat-label">Submitted</div>
+        </div>
+        <div class="stat-card resolved">
+          <div class="stat-number">
+            <% if (typeof resolvedComplaints !== 'undefined') { %>
+              <%= resolvedComplaints %>
+            <% } else { %>
+              0
+            <% } %>
+          </div>
+          <div class="stat-label">Resolved</div>
+        </div>
+        <div class="stat-card urgent">
+          <div class="stat-number">
+            <% if (typeof urgentComplaints !== 'undefined') { %>
+              <%= urgentComplaints %>
+            <% } else { %>
+              0
+            <% } %>
+          </div>
+          <div class="stat-label">Urgent</div>
+        </div>
+      </div>
+
+      <!-- Filter Section -->
+      <div class="filter-section">
+        <form method="GET" action="/admin/viewComplaints">
+          <div class="filter-row">
+            <div class="filter-group">
+              <label for="status">Status</label>
+              <select name="status" id="status">
+                <option value="">All Status</option>
+                <option value="pending" <% if (typeof query !== 'undefined' && query.status === 'pending') { %>selected<% } %>>Submitted</option>
+                <option value="in-progress" <% if (typeof query !== 'undefined' && query.status === 'in-progress') { %>selected<% } %>>In Progress</option>
+                <option value="resolved" <% if (typeof query !== 'undefined' && query.status === 'resolved') { %>selected<% } %>>Resolved</option>
+                <option value="closed" <% if (typeof query !== 'undefined' && query.status === 'closed') { %>selected<% } %>>Closed</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="priority">Priority</label>
+              <select name="priority" id="priority">
+                <option value="">All Priorities</option>
+                <option value="low" <% if (typeof query !== 'undefined' && query.priority === 'low') { %>selected<% } %>>Low</option>
+                <option value="medium" <% if (typeof query !== 'undefined' && query.priority === 'medium') { %>selected<% } %>>Medium</option>
+                <option value="high" <% if (typeof query !== 'undefined' && query.priority === 'high') { %>selected<% } %>>High</option>
+                <option value="urgent" <% if (typeof query !== 'undefined' && query.priority === 'urgent') { %>selected<% } %>>Urgent</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="category">Category</label>
+              <select name="category" id="category">
+                <option value="">All Categories</option>
+                <option value="facility" <% if (typeof query !== 'undefined' && query.category === 'facility') { %>selected<% } %>>Facility</option>
+                <option value="booking" <% if (typeof query !== 'undefined' && query.category === 'booking') { %>selected<% } %>>Booking</option>
+                <option value="technical" <% if (typeof query !== 'undefined' && query.category === 'technical') { %>selected<% } %>>Technical</option>
+                <option value="staff" <% if (typeof query !== 'undefined' && query.category === 'staff') { %>selected<% } %>>Staff</option>
+                <option value="other" <% if (typeof query !== 'undefined' && query.category === 'other') { %>selected<% } %>>Other</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="search">Search</label>
+              <input type="text" name="search" id="search" placeholder="Search complaints..." 
+                     value="<% if (typeof query !== 'undefined' && query.search) { %><%= query.search %><% } %>">
+            </div>
+            <div class="filter-group">
+              <div class="filter-buttons">
+                <button type="submit" class="btn-filter">
+                  <i class="fas fa-filter"></i> Filter
+                </button>
+                <a href="/admin/viewComplaints" class="btn-clear">
+                  <i class="fas fa-times"></i> Clear
+                </a>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Complaints Table -->
+      <div class="complaints-table-container">
+        <div class="table-header">
+          <h3><i class="fas fa-list"></i> Complaints List</h3>
+          <div class="table-actions">
+            <button class="btn-export" onclick="exportComplaints()">
+              <i class="fas fa-download"></i> Export CSV
+            </button>
+            <button class="btn-export" onclick="refreshComplaints()">
+              <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+          </div>
+        </div>
+
+        <% if (typeof complaints !== 'undefined' && complaints && complaints.length > 0) { %>
+          <table class="complaints-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Subject</th>
+                <th>Category</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% complaints.forEach(function(complaint) { %>
+                <tr>
+                  <td>
+                    <span class="complaint-id">
+                      #<% if (complaint.complaint_id) { %><%= complaint.complaint_id %><% } else { %><%= complaint._id.toString().slice(-6) %><% } %>
+                    </span>
+                  </td>
+                  <td>
+                    <div class="user-info">
+                      <div class="user-avatar">
+                        <% if (complaint.user && complaint.user.user_name) { %>
+                          <%= complaint.user.user_name.charAt(0).toUpperCase() %>
+                        <% } else { %>
+                          U
+                        <% } %>
+                      </div>
+                      <div>
+                        <div style="font-weight: 600;">
+                          <% if (complaint.user && complaint.user.user_name) { %>
+                            <%= complaint.user.user_name %>
+                          <% } else { %>
+                            Unknown User
+                          <% } %>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #7f8c8d;">
+                          <% if (complaint.user && complaint.user.user_email) { %>
+                            <%= complaint.user.user_email %>
+                          <% } else { %>
+                            No email
+                          <% } %>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="complaint-subject" title="<% if (complaint.subject) { %><%= complaint.subject %><% } %>">
+                      <% if (complaint.subject) { %>
+                        <%= complaint.subject %>
+                      <% } else { %>
+                        No subject
+                      <% } %>
+                    </div>
+                  </td>
+                  <td>
+                    <span style="text-transform: capitalize; font-weight: 600;">
+                      <% if (complaint.category) { %>
+                        <%= complaint.category %>
+                      <% } else { %>
+                        Other
+                      <% } %>
+                    </span>
+                  </td>
+                  <td>
+                    <span class="priority-badge priority-<% if (complaint.priority) { %><%= complaint.priority.toLowerCase() %><% } else { %>medium<% } %>">
+                      <% if (complaint.priority) { %>
+                        <%= complaint.priority %>
+                      <% } else { %>
+                        Medium
+                      <% } %>
+                    </span>
+                  </td>
+                  <td>
+                    <span class="status-badge status-<% if (complaint.status) { %><%= complaint.status.toLowerCase().replace(' ', '-') %><% } else { %>submitted<% } %>">
+                      <% if (complaint.status) { %>
+                        <%= complaint.status %>
+                      <% } else { %>
+                        Submitted
+                      <% } %>
+                    </span>
+                  </td>
+                  <td>
+                    <div><%= complaint.createdAt.toLocaleDateString() %></div>
+                    <div style="font-size: 0.8rem; color: #7f8c8d;">
+                      <%= complaint.createdAt.toLocaleTimeString() %>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="action-buttons">
+                      <a href="/admin/complaint/<%= complaint._id %>" class="btn-action btn-view">
+                        <i class="fas fa-eye"></i>
+                      </a>
+                      <% if (complaint.status !== 'Resolved' && complaint.status !== 'Closed') { %>
+                        <button class="btn-action btn-resolve" onclick="updateStatus('<%= complaint._id %>', 'resolved')">
+                          <i class="fas fa-check"></i>
+                        </button>
+                      <% } %>
+                      <button class="btn-action btn-delete" onclick="deleteComplaint('<%= complaint._id %>')">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        <% } else { %>
+          <div class="no-complaints">
+            <i class="fas fa-clipboard-list"></i>
+            <h3>No Complaints Found</h3>
+            <p>There are no complaints matching your current filters.</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Update complaint status
+    function updateStatus(complaintId, status) {
+      if (confirm(`Are you sure you want to mark this complaint as ${status}?`)) {
+        fetch(`/admin/complaint/${complaintId}/status`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status: status })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            location.reload();
+          } else {
+            alert('Failed to update status: ' + data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error updating status');
+        });
+      }
+    }
+
+    // Delete complaint
+    function deleteComplaint(complaintId) {
+      if (confirm('Are you sure you want to delete this complaint? This action cannot be undone.')) {
+        fetch(`/admin/complaint/${complaintId}`, {
+          method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            location.reload();
+          } else {
+            alert('Failed to delete complaint: ' + data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error deleting complaint');
+        });
+      }
+    }
+
+    // Export complaints
+    function exportComplaints() {
+      const params = new URLSearchParams(window.location.search);
+      params.set('export', 'csv');
+      window.location.href = `/admin/viewComplaints?${params.toString()}`;
+    }
+
+    // Refresh page
+    function refreshComplaints() {
+      location.reload();
+    }
+
+    console.log('Admin Complaints page loaded successfully!');
+  </script>
+</body>
+</html>

@@ -8,20 +8,58 @@
   <link rel="stylesheet" href="/css/dstyle.css" />
   
   <style>
-    .bookings-container {
-      max-width: 1200px;
-      margin: 20px auto;
-      padding: 20px;
+    /* College Background Image */
+    body {
+      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                  url('/images/clg.jpg') center/cover no-repeat fixed;
+      min-height: 100vh;
     }
+
+    .bookings-page {
+      margin-top: 80px;
+      padding: 20px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Same Header Style as Facilities Page */
     .bookings-header {
-      text-align: center;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 25px 0;
       margin-bottom: 30px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      border-radius: 15px;
+      margin: 0 20px 30px 20px;
     }
+    
     .bookings-header h1 {
+      text-align: center;
       color: #2c3e50;
       font-size: 2.2rem;
-      margin-bottom: 10px;
+      font-weight: 800;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea, #1506e2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
+    
+    .bookings-header p {
+      text-align: center;
+      color: #5a67d8;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 10px 0 0 0;
+    }
+
+    .bookings-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
     .bookings-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -62,6 +100,8 @@
       text-align: center;
       padding: 60px 20px;
       color: #666;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
     }
     .btn-primary {
       background: #007bff;
@@ -77,18 +117,59 @@
       text-decoration: none;
       color: white;
     }
+
+    /* Loading Animation */
+    .bookings-page {
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .bookings-header {
+        margin: 0 15px 25px 15px;
+        padding: 20px 15px;
+      }
+
+      .bookings-header h1 {
+        font-size: 1.8rem;
+      }
+
+      .bookings-header p {
+        font-size: 1rem;
+      }
+
+      .bookings-container {
+        padding: 0 15px;
+      }
+
+      .bookings-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
   <%- include('../partials/userHeader') %>
 
-  <main class="main-content" style="margin-top: 20px;">
-    <div class="bookings-container">
-      <div class="bookings-header">
-        <h1><i class="fas fa-calendar-check"></i> My Bookings</h1>
-        <p>View and manage all your facility bookings</p>
-      </div>
+  <div class="bookings-page">
+    <!-- Page Header - Same Style as Facilities -->
+    <div class="bookings-header">
+      <h1><i class="fas fa-calendar-check"></i> My Bookings</h1>
+      <p>View and manage all your facility bookings</p>
+    </div>
 
+    <div class="bookings-container">
       <% if (bookings && bookings.length > 0) { %>
         <div class="bookings-grid">
           <% bookings.forEach(function(booking) { %>
@@ -120,6 +201,6 @@
         </div>
       <% } %>
     </div>
-  </main>
+  </div>
 </body>
 </html>

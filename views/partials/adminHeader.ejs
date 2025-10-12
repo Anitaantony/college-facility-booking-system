@@ -32,6 +32,38 @@
       opacity: 0.8;
     }
 
+    /* Make the menu toggle button visible */
+    .menu-toggle {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+    }
+
+    .menu-toggle:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .menu-toggle:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+    }
+
+    /* Ensure header-left has proper display */
+    .header-left {
+      display: flex;
+      align-items: center;
+    }
+
     /* Admin sidebar styling */
     .admin-sidebar {
       background: linear-gradient(180deg, #2c3e50, #34495e);
@@ -82,23 +114,145 @@
       border-radius: 8px;
       cursor: pointer;
       transition: background 0.3s ease;
+      color: white;
     }
 
     .profile-info:hover {
-      background: rgba(0,0,0,0.05);
+      background: rgba(255, 255, 255, 0.1);
     }
 
     .profile-img {
       width: 35px;
       height: 35px;
       border-radius: 50%;
-      background: #667eea;
+      background: rgba(255, 255, 255, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
       font-weight: 600;
       font-size: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .profile-name {
+      color: white;
+      font-weight: 600;
+    }
+
+    .profile-info i {
+      color: white;
+    }
+
+    /* Fix search container for admin */
+    .search-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .search-container input {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+
+    .search-container input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .filter-select {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+
+    .filter-select option {
+      background: #667eea;
+      color: white;
+    }
+
+    /* Notification button */
+    .notification-container .icon-button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 6px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .notification-container .icon-button:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: #ff4757;
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Make sure dropdown menu is properly styled */
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      min-width: 180px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .dropdown-menu.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      color: #333;
+      text-decoration: none;
+      transition: background 0.3s ease;
+    }
+
+    .dropdown-item:hover {
+      background: #f8f9fa;
+      color: #667eea;
+      text-decoration: none;
+    }
+
+    .dropdown-item:first-child {
+      border-radius: 8px 8px 0 0;
+    }
+
+    .dropdown-item:last-child {
+      border-radius: 0 0 8px 8px;
     }
   </style>
 </head>
@@ -196,21 +350,13 @@
         </a>
       </li>
 
-      <!-- Faculty Management -->
-      <!-- <li class="sidebar-item">
-        <a href="/admin/manageFaculty" class="sidebar-link">
-          <i class="fas fa-user-tie"></i>
-          <span>Manage Faculty</span>
-        </a>
-      </li> -->
-
       <!-- Classroom Allotments -->
-      <li class="sidebar-item">
+      <!-- <li class="sidebar-item">
         <a href="/admin/classroomAllotment" class="sidebar-link">
           <i class="fas fa-chalkboard"></i>
           <span>Classroom Allotments</span>
         </a>
-      </li>
+      </li> -->
 
       <!-- Complaints -->
       <li class="sidebar-item">
@@ -229,20 +375,20 @@
       </li>
 
       <!-- System Settings -->
-      <li class="sidebar-item">
+      <!-- <li class="sidebar-item">
         <a href="/admin/settings" class="sidebar-link">
           <i class="fas fa-cog"></i>
           <span>System Settings</span>
         </a>
-      </li>
+      </li> -->
 
       <!-- Help & Support -->
-      <li class="sidebar-item">
+      <!-- <li class="sidebar-item">
         <a href="/admin/help" class="sidebar-link">
           <i class="fas fa-question-circle"></i>
           <span>Help & Support</span>
         </a>
-      </li>
+      </li> -->
     </ul>
   </aside>
 
