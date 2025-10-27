@@ -17,7 +17,9 @@
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                  url('/images/clg.jpg') center/cover no-repeat fixed,
+                  linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -26,14 +28,16 @@
     }
 
     .signup-container {
-      background: white;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
       padding: 40px;
       border-radius: 20px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
       width: 100%;
       max-width: 520px;
       position: relative;
       overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .signup-container::before {
@@ -85,7 +89,7 @@
       border-radius: 10px;
       font-size: 1rem;
       transition: all 0.3s ease;
-      background: #f8f9fa;
+      background: rgba(248, 249, 250, 0.9);
     }
 
     .form-group input:focus,
@@ -185,7 +189,7 @@
     }
 
     .error-message {
-      background: #fff5f5;
+      background: rgba(255, 245, 245, 0.95);
       border: 1px solid #fed7d7;
       color: #c53030;
       padding: 12px 16px;
@@ -195,10 +199,11 @@
       align-items: center;
       gap: 8px;
       font-size: 0.9rem;
+      backdrop-filter: blur(5px);
     }
 
     .success-message {
-      background: #f0fff4;
+      background: rgba(240, 255, 244, 0.95);
       border: 1px solid #9ae6b4;
       color: #22543d;
       padding: 12px 16px;
@@ -208,6 +213,7 @@
       align-items: center;
       gap: 8px;
       font-size: 0.9rem;
+      backdrop-filter: blur(5px);
     }
 
     .form-group small {
@@ -270,12 +276,12 @@
     /* Input validation styles */
     .form-group input.valid {
       border-color: #27ae60;
-      background: #f0fff4;
+      background: rgba(240, 255, 244, 0.9);
     }
 
     .form-group input.invalid {
       border-color: #e74c3c;
-      background: #fff5f5;
+      background: rgba(255, 245, 245, 0.9);
     }
 
     /* Responsive Design */
@@ -392,16 +398,10 @@
         <label for="dept_id">Department *</label>
         <select id="dept_id" name="dept_id" required>
           <option value="">Select Your Department</option>
-          <option value="CSE" <%= typeof formData !== 'undefined' && formData.dept_id === 'CSE' ? 'selected' : '' %>>Computer Science & Engineering</option>
-          <option value="ECE" <%= typeof formData !== 'undefined' && formData.dept_id === 'ECE' ? 'selected' : '' %>>Electronics & Communication</option>
-          <option value="ME" <%= typeof formData !== 'undefined' && formData.dept_id === 'ME' ? 'selected' : '' %>>Mechanical Engineering</option>
-          <option value="CE" <%= typeof formData !== 'undefined' && formData.dept_id === 'CE' ? 'selected' : '' %>>Civil Engineering</option>
-          <option value="EE" <%= typeof formData !== 'undefined' && formData.dept_id === 'EE' ? 'selected' : '' %>>Electrical Engineering</option>
-          <option value="IT" <%= typeof formData !== 'undefined' && formData.dept_id === 'IT' ? 'selected' : '' %>>Information Technology</option>
-          <option value="CHEM" <%= typeof formData !== 'undefined' && formData.dept_id === 'CHEM' ? 'selected' : '' %>>Chemical Engineering</option>
-          <option value="BIO" <%= typeof formData !== 'undefined' && formData.dept_id === 'BIO' ? 'selected' : '' %>>Biotechnology</option>
-          <option value="MBA" <%= typeof formData !== 'undefined' && formData.dept_id === 'MBA' ? 'selected' : '' %>>Management Studies</option>
-          <option value="OTHER" <%= typeof formData !== 'undefined' && formData.dept_id === 'OTHER' ? 'selected' : '' %>>Other</option>
+          <!-- Replace all these options with your actual database values -->
+          <option value="102" <%= typeof formData !== 'undefined' && formData.dept_id === '102' ? 'selected' : '' %>>Computer Applications</option>
+          <option value="103" <%= typeof formData !== 'undefined' && formData.dept_id === '103' ? 'selected' : '' %>>Computer Science</option>
+          <!-- Add more departments based on what's actually in your database -->
         </select>
         <i class="input-icon fas fa-building"></i>
       </div>

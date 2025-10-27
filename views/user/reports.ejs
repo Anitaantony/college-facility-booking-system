@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/dstyle.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    .reports-container {
+      max-width: 1400px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    
+    .page-header {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 30px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    
+    .page-header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+    
+    .filters-section {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      margin-bottom: 30px;
+    }
+    
+    .filters-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      align-items: end;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 8px;
+    }
+    
+    .form-group select,
+    .form-group input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    
+    .btn-success {
+      background: #00b894;
+      color: white;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+    
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 8px;
+    }
+    
+    .stat-label {
+      color: #7f8c8d;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    
+    .stat-icon {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 2rem;
+      color: #667eea;
+      opacity: 0.3;
+    }
+    
+    .charts-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+    
+    .chart-card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+    
+    .chart-card h3 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+    }
+    
+    .table-section {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    
+    .section-header {
+      background: #f8f9fa;
+      padding: 20px 25px;
+      border-bottom: 2px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .section-header h3 {
+      margin: 0;
+      color: #2c3e50;
+      font-size: 1.3rem;
+    }
+    
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .table th,
+    .table td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #f1f3f4;
+    }
+    
+    .table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    
+    .table tr:hover {
+      background: #f8f9fa;
+    }
+    
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .status-approved {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .status-rejected {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .alert {
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+    
+    .alert-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .badge {
+      background: #667eea;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+    }
+    
+    @media (max-width: 768px) {
+      .charts-section {
+        grid-template-columns: 1fr;
+      }
+      
+      .filters-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .table-section {
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/userHeader') %>
+
+  <main class="main-content">
+    <div class="reports-container">
+      
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1><i class="fas fa-chart-line"></i> My Reports</h1>
+        <p>Track your booking history and analyze your facility usage</p>
+      </div>
+
+      <!-- Error Message -->
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error">
+          <i class="fas fa-exclamation-circle"></i> <%= error %>
+        </div>
+      <% } %>
+
+      <!-- Filters Section -->
+      <div class="filters-section">
+        <form method="GET" action="/user/reports">
+          <div class="filters-row">
+            <div class="form-group">
+              <label for="period">Time Period</label>
+              <select id="period" name="period" onchange="toggleCustomDates()">
+                <option value="1month" <% if (typeof currentPeriod !== 'undefined' && currentPeriod === '1month') { %>selected<% } %>>Last Month</option>
+                <option value="3months" <% if (typeof currentPeriod === 'undefined' || currentPeriod === '3months') { %>selected<% } %>>Last 3 Months</option>
+                <option value="6months" <% if (typeof currentPeriod !== 'undefined' && currentPeriod === '6months') { %>selected<% } %>>Last 6 Months</option>
+                <option value="1year" <% if (typeof currentPeriod !== 'undefined' && currentPeriod === '1year') { %>selected<% } %>>Last Year</option>
+                <option value="all" <% if (typeof currentPeriod !== 'undefined' && currentPeriod === 'all') { %>selected<% } %>>All Time</option>
+                <option value="custom" <% if (typeof currentPeriod !== 'undefined' && currentPeriod === 'custom') { %>selected<% } %>>Custom Range</option>
+              </select>
+            </div>
+            
+            <div class="form-group" id="startDateGroup" <% if (typeof currentPeriod === 'undefined' || currentPeriod !== 'custom') { %>style="display: none"<% } %>>
+              <label for="startDate">Start Date</label>
+              <input type="date" id="startDate" name="startDate" value="<%= typeof startDate !== 'undefined' ? startDate : '' %>">
+            </div>
+            
+            <div class="form-group" id="endDateGroup" <% if (typeof currentPeriod === 'undefined' || currentPeriod !== 'custom') { %>style="display: none"<% } %>>
+              <label for="endDate">End Date</label>
+              <input type="date" id="endDate" name="endDate" value="<%= typeof endDate !== 'undefined' ? endDate : '' %>">
+            </div>
+            
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-filter"></i> Apply Filters
+              </button>
+            </div>
+            
+            <div class="form-group">
+              <a href="/user/reports/export" class="btn btn-success">
+                <i class="fas fa-download"></i> Export CSV
+              </a>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <i class="fas fa-calendar-check stat-icon"></i>
+          <div class="stat-number"><%= (typeof stats !== 'undefined' && stats.totalBookings) ? stats.totalBookings : 0 %></div>
+          <div class="stat-label">Total Bookings</div>
+        </div>
+        
+        <div class="stat-card">
+          <i class="fas fa-check-circle stat-icon"></i>
+          <div class="stat-number"><%= (typeof stats !== 'undefined' && stats.approvedBookings) ? stats.approvedBookings : 0 %></div>
+          <div class="stat-label">Approved Bookings</div>
+        </div>
+        
+        <div class="stat-card">
+          <i class="fas fa-clock stat-icon"></i>
+          <div class="stat-number"><%= (typeof stats !== 'undefined' && stats.pendingBookings) ? stats.pendingBookings : 0 %></div>
+          <div class="stat-label">Pending Bookings</div>
+        </div>
+        
+        <div class="stat-card">
+          <i class="fas fa-exclamation-triangle stat-icon"></i>
+          <div class="stat-number"><%= (typeof stats !== 'undefined' && stats.totalComplaints) ? stats.totalComplaints : 0 %></div>
+          <div class="stat-label">Total Complaints</div>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="charts-section">
+        <div class="chart-card">
+          <h3><i class="fas fa-chart-bar"></i> Monthly Booking Trends</h3>
+          <canvas id="monthlyChart" width="400" height="200"></canvas>
+        </div>
+        
+        <div class="chart-card">
+          <h3><i class="fas fa-chart-pie"></i> Facility Usage</h3>
+          <canvas id="facilityChart" width="400" height="200"></canvas>
+        </div>
+      </div>
+
+      <!-- Recent Bookings Table -->
+      <div class="table-section">
+        <div class="section-header">
+          <h3><i class="fas fa-history"></i> Recent Bookings</h3>
+          <span class="badge">Showing last <%= (typeof bookings !== 'undefined' && bookings.length) ? bookings.length : 0 %> bookings</span>
+        </div>
+        
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Facility</th>
+              <th>Time</th>
+              <th>Purpose</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (typeof bookings !== 'undefined' && bookings && bookings.length > 0) { %>
+              <% bookings.slice(0, 10).forEach(function(booking) { %>
+                <tr>
+                  <td><%= new Date(booking.date).toLocaleDateString() %></td>
+                  <td>
+                    <strong><%= booking.facility ? booking.facility.facility_name : 'Unknown' %></strong>
+                    <br><small><%= booking.facility ? booking.facility.facility_type : '' %></small>
+                  </td>
+                  <td><%= booking.startTime %> - <%= booking.endTime %></td>
+                  <td><%= booking.purpose ? booking.purpose.substring(0, 30) + '...' : 'N/A' %></td>
+                  <td>
+                    <span class="status-badge status-<%= booking.status.toLowerCase() %>">
+                      <%= booking.status %>
+                    </span>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 40px;">
+                  <i class="fas fa-calendar-times" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
+                  <br>No bookings found for the selected period.
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+  // Toggle custom date inputs
+  function toggleCustomDates() {
+    const period = document.getElementById('period').value;
+    const startDateGroup = document.getElementById('startDateGroup');
+    const endDateGroup = document.getElementById('endDateGroup');
+    
+    if (period === 'custom') {
+      startDateGroup.style.display = 'block';
+      endDateGroup.style.display = 'block';
+    } else {
+      startDateGroup.style.display = 'none';
+      endDateGroup.style.display = 'none';
+    }
+  }
+
+  // Initialize charts when page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    // Monthly Trends Chart with default empty data
+    const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+    new Chart(monthlyCtx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Bookings',
+          data: [0, 0, 0, 0, 0, 0],
+          borderColor: '#667eea',
+          backgroundColor: 'rgba(102, 126, 234, 0.1)',
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    });
+
+    // Facility Usage Chart with default empty data
+    const facilityCtx = document.getElementById('facilityChart').getContext('2d');
+    new Chart(facilityCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['No Data'],
+        datasets: [{
+          data: [1],
+          backgroundColor: ['#e9ecef']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

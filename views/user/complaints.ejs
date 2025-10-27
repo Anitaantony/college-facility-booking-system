@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/dstyle.css">
+  
+  <style>
+    .complaints-container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    
+    .page-header {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 30px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    
+    .page-header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+    
+    .complaint-form {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      margin-bottom: 30px;
+    }
+    
+    .complaint-form h2 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 8px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .form-group textarea {
+      height: 120px;
+      resize: vertical;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #5a67d8;
+      transform: translateY(-2px);
+    }
+    
+    .complaints-table {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .table th {
+      background: #f8f9fa;
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      color: #2c3e50;
+      border-bottom: 2px solid #e9ecef;
+    }
+    
+    .table td {
+      padding: 15px;
+      border-bottom: 1px solid #f1f3f4;
+      vertical-align: middle;
+    }
+    
+    .table tr:hover {
+      background: #f8f9fa;
+    }
+    
+    .status-badge {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+    
+    .status-submitted {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .status-in-progress {
+      background: #cce7ff;
+      color: #004085;
+    }
+    
+    .status-resolved {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .status-closed {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .priority-badge {
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .priority-low {
+      background: #e2f7e2;
+      color: #2d5a2d;
+    }
+    
+    .priority-medium {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .priority-high {
+      background: #ffcccc;
+      color: #cc0000;
+    }
+    
+    .priority-urgent {
+      background: #ff4d4d;
+      color: white;
+    }
+    
+    .complaint-id {
+      font-family: monospace;
+      background: #f8f9fa;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+    
+    .alert {
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+    
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .alert-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+      
+      .complaints-table {
+        overflow-x: auto;
+      }
+      
+      .table th,
+      .table td {
+        padding: 10px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/userHeader') %>
+
+  <main class="main-content">
+    <div class="complaints-container">
+      
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1><i class="fas fa-exclamation-circle"></i> My Complaints</h1>
+        <p>Submit and track your complaints</p>
+      </div>
+
+      <!-- Success/Error Messages -->
+      <% if (success) { %>
+        <div class="alert alert-success">
+          <i class="fas fa-check-circle"></i> <%= success %>
+        </div>
+      <% } %>
+      
+      <% if (error) { %>
+        <div class="alert alert-error">
+          <i class="fas fa-exclamation-circle"></i> <%= error %>
+        </div>
+      <% } %>
+
+      <!-- Complaint Submission Form -->
+      <div class="complaint-form">
+        <h2><i class="fas fa-plus-circle"></i> Submit New Complaint</h2>
+        
+        <form action="/user/submit-complaint" method="POST">
+          <div class="form-group">
+            <label for="subject">Subject *</label>
+            <input type="text" id="subject" name="subject" placeholder="Brief description of your issue" required>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="category">Category</label>
+              <select id="category" name="category">
+                <option value="Facility">Facility Issue</option>
+                <option value="Booking">Booking Problem</option>
+                <option value="Technical">Technical Issue</option>
+                <option value="Staff">Staff Related</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="priority">Priority</label>
+              <select id="priority" name="priority">
+                <option value="Low">Low</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="High">High</option>
+                <option value="Urgent">Urgent</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="description">Description *</label>
+            <textarea id="description" name="description" placeholder="Detailed description of your complaint..." required></textarea>
+          </div>
+          
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-paper-plane"></i> Submit Complaint
+          </button>
+        </form>
+      </div>
+
+      <!-- Complaints Table -->
+      <div class="complaints-table">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Subject</th>
+              <th>Category</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Date Submitted</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (complaints && complaints.length > 0) { %>
+              <% complaints.forEach(function(complaint) { %>
+                <tr>
+                  <td>
+                    <div class="complaint-id">#<%= complaint.complaint_id %></div>
+                  </td>
+                  <td>
+                    <strong><%= complaint.subject %></strong>
+                    <br><small style="color: #666;"><%= complaint.description.substring(0, 50) %>...</small>
+                  </td>
+                  <td><%= complaint.category %></td>
+                  <td>
+                    <span class="priority-badge priority-<%= complaint.priority.toLowerCase() %>">
+                      <%= complaint.priority %>
+                    </span>
+                  </td>
+                  <td>
+                    <span class="status-badge status-<%= complaint.status.toLowerCase().replace(' ', '-') %>">
+                      <%= complaint.status %>
+                    </span>
+                  </td>
+                  <td><%= new Date(complaint.createdAt).toLocaleDateString() %></td>
+                  <td>
+                    <a href="/user/complaints/<%= complaint._id %>" class="btn btn-info" style="font-size: 0.8rem; padding: 6px 12px;">
+                      <i class="fas fa-eye"></i> View
+                    </a>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="7" style="text-align: center; padding: 40px;">
+                  <i class="fas fa-inbox" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
+                  <br>No complaints found. Submit your first complaint above.
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

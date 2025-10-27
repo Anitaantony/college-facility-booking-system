@@ -5,6 +5,8 @@ const router = express.Router();
 const { User } = require("../models/userModels");
 const Booking = require('../models/bookingModel');
 const Facility = require('../models/facilityModel');
+const Complaint = require('../models/complaintModel');
+const NotificationService = require('../services/notificationService');
 
 // Middleware to check admin session
 function isAdmin(req, res, next) {
@@ -56,7 +58,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Admin dashboard (UPDATED VERSION)
+// Admin dashboard
 router.get("/dashboard", isAdmin, async (req, res) => {
   try {
     // Get all statistics
@@ -102,10 +104,13 @@ router.get("/dashboard", isAdmin, async (req, res) => {
   }
 });
 
-// Manage Facilities - GET (View all facilities)
+// ==========================================
+// FACILITY MANAGEMENT ROUTES
+// ==========================================
+
+// Manage Facilities - GET
 router.get("/manageFacilities", isAdmin, async (req, res) => {
   try {
-    // Get all facilities from database
     const facilities = await Facility.find({}).sort({ createdAt: -1 });
     
     res.render('admin/manageFacilities', {
@@ -126,29 +131,21 @@ router.get("/manageFacilities", isAdmin, async (req, res) => {
   }
 });
 
-// Add New Facility - POST (Fixed for your model)
+// Add New Facility - POST
 router.post("/manageFacilities/add", isAdmin, async (req, res) => {
   try {
-    console.log('📝 Form data received:', req.body); // Debug log
-    
     const { facility_name, facility_type, location, capacity, description, amenities } = req.body;
     
-    // Validation
     if (!facility_name || !facility_type || !capacity || !location) {
-      console.log('❌ Validation failed: Missing required fields');
-      return res.redirect('/admin/manageFacilities?error=Please fill in all required fields (Name, Type, Location, Capacity)');
+      return res.redirect('/admin/manageFacilities?error=Please fill in all required fields');
     }
 
-    // Generate unique facility_id
     const lastFacility = await Facility.findOne().sort({ facility_id: -1 });
     const newFacilityId = lastFacility ? lastFacility.facility_id + 1 : 1;
 
-    // Process amenities array (your model uses 'amenities' not 'equipment')
     const amenitiesArray = amenities ? 
-      amenities.split(',').map(item => item.trim()).filter(item => item.length > 0) : 
-      [];
+      amenities.split(',').map(item => item.trim()).filter(item => item.length > 0) : [];
 
-    // Create new facility with all required fields
     const facilityData = {
       facility_id: newFacilityId,
       facility_name: facility_name.trim(),
@@ -157,48 +154,33 @@ router.post("/manageFacilities/add", isAdmin, async (req, res) => {
       capacity: parseInt(capacity),
       description: description ? description.trim() : '',
       amenities: amenitiesArray,
-      availability_hours: {
-        start: '09:00',
-        end: '17:00'
-      },
+      availability_hours: { start: '09:00', end: '17:00' },
       status: 'active',
-      created_by: req.session.user.id // This is required in your model
+      created_by: req.session.user.id
     };
 
-    console.log('💾 Creating facility with data:', facilityData); // Debug log
-
     const newFacility = new Facility(facilityData);
-    const savedFacility = await newFacility.save();
-    
-    console.log('✅ Facility created successfully:', savedFacility._id); // Debug log
+    await newFacility.save();
     
     res.redirect('/admin/manageFacilities?success=Facility added successfully!');
     
   } catch (error) {
-    console.error('❌ Error adding facility:', error);
-    
-    // Check for specific MongoDB errors
+    console.error('Error adding facility:', error);
     if (error.name === 'ValidationError') {
       const errorMessage = Object.values(error.errors).map(err => err.message).join(', ');
       return res.redirect('/admin/manageFacilities?error=Validation Error: ' + errorMessage);
     }
-    
-    if (error.code === 11000) {
-      return res.redirect('/admin/manageFacilities?error=A facility with this ID already exists');
-    }
-    
     res.redirect('/admin/manageFacilities?error=Failed to add facility: ' + error.message);
   }
 });
 
-// Update Facility - POST (Fixed for your model)
+// Update Facility - POST
 router.post("/manageFacilities/update/:id", isAdmin, async (req, res) => {
   try {
     const { facility_name, facility_type, location, capacity, description, amenities, status } = req.body;
     
     const amenitiesArray = amenities ? 
-      amenities.split(',').map(item => item.trim()).filter(item => item.length > 0) : 
-      [];
+      amenities.split(',').map(item => item.trim()).filter(item => item.length > 0) : [];
     
     await Facility.findByIdAndUpdate(req.params.id, {
       facility_name: facility_name.trim(),
@@ -246,11 +228,13 @@ router.post("/manageFacilities/toggle/:id", isAdmin, async (req, res) => {
   }
 });
 
-module.exports = router;
-// Manage Bookings - GET (View all bookings)
+// ==========================================
+// BOOKING MANAGEMENT ROUTES (FIXED)
+// ==========================================
+
+// Manage Bookings - GET
 router.get("/manageBookings", isAdmin, async (req, res) => {
   try {
-    // Get all bookings with user and facility details
     const bookings = await Booking.find({})
       .populate('user', 'user_name user_email user_id')
       .populate('facility', 'facility_name facility_type location')
@@ -274,7 +258,7 @@ router.get("/manageBookings", isAdmin, async (req, res) => {
   }
 });
 
-// Update Booking Status - POST
+// Update Booking Status - POST (FIXED WITH NOTIFICATIONS)
 router.post("/manageBookings/updateStatus/:id", isAdmin, async (req, res) => {
   try {
     const { status, reason } = req.body;
@@ -284,21 +268,64 @@ router.post("/manageBookings/updateStatus/:id", isAdmin, async (req, res) => {
       return res.redirect('/admin/manageBookings?error=Invalid status');
     }
 
+    console.log('📋 Updating booking status:', req.params.id, 'to', status);
+
+    // IMPORTANT: Get booking BEFORE updating, with user populated
+    const booking = await Booking.findById(req.params.id)
+      .populate('facility', 'facility_name')
+      .populate('user', '_id user_name user_email');
+
+    if (!booking) {
+      return res.redirect('/admin/manageBookings?error=Booking not found');
+    }
+
+    console.log('👤 Found booking for user:', booking.user?._id);
+    console.log('🏢 Facility:', booking.facility?.facility_name);
+
     const updateData = { 
       status,
       updatedAt: new Date()
     };
     
-    // Add rejection reason if status is Rejected
     if (status === 'Rejected' && reason) {
       updateData.rejectionReason = reason;
     }
 
     await Booking.findByIdAndUpdate(req.params.id, updateData);
+
+    // SEND NOTIFICATION TO USER
+    try {
+      const facilityName = booking.facility?.facility_name || 'Unknown Facility';
+      const bookingDate = booking.booking_date ? booking.booking_date.toLocaleDateString() : 'Unknown Date';
+
+      if (status === 'Approved') {
+        console.log('✅ Creating approval notification...');
+        await NotificationService.notifyBookingApproved(
+          booking.user._id,
+          booking._id,
+          facilityName,
+          bookingDate
+        );
+        console.log('✅ Approval notification created!');
+      } else if (status === 'Rejected') {
+        console.log('❌ Creating rejection notification...');
+        await NotificationService.notifyBookingRejected(
+          booking.user._id,
+          booking._id,
+          facilityName,
+          bookingDate,
+          reason || 'No reason provided'
+        );
+        console.log('❌ Rejection notification created!');
+      }
+    } catch (notificationError) {
+      console.error('❌ Notification error:', notificationError);
+      // Don't fail the entire operation if notification fails
+    }
     
-    res.redirect('/admin/manageBookings?success=Booking status updated successfully!');
+    res.redirect('/admin/manageBookings?success=Booking status updated and user notified!');
   } catch (error) {
-    console.error('Error updating booking status:', error);
+    console.error('❌ Error updating booking status:', error);
     res.redirect('/admin/manageBookings?error=Failed to update booking status');
   }
 });
@@ -331,13 +358,16 @@ router.get("/manageBookings/details/:id", isAdmin, async (req, res) => {
     res.json({ error: 'Failed to load booking details' });
   }
 });
-// Manage Users - GET (View all users)
+
+// ==========================================
+// USER MANAGEMENT ROUTES
+// ==========================================
+
+// Manage Users - GET
 router.get("/manageUsers", isAdmin, async (req, res) => {
   try {
-    // Get all users with their booking statistics
     const users = await User.find({}).sort({ createdAt: -1 });
     
-    // Get booking counts for each user
     const usersWithStats = await Promise.all(
       users.map(async (user) => {
         const totalBookings = await Booking.countDocuments({ user: user._id });
@@ -346,11 +376,7 @@ router.get("/manageUsers", isAdmin, async (req, res) => {
         
         return {
           ...user.toObject(),
-          stats: {
-            totalBookings,
-            pendingBookings,
-            approvedBookings
-          }
+          stats: { totalBookings, pendingBookings, approvedBookings }
         };
       })
     );
@@ -378,28 +404,24 @@ router.post("/manageUsers/add", isAdmin, async (req, res) => {
   try {
     const { user_name, user_email, user_type, password } = req.body;
     
-    // Validation
     if (!user_name || !user_email || !user_type || !password) {
       return res.redirect('/admin/manageUsers?error=All fields are required');
     }
 
-    // Check if email already exists
     const existingUser = await User.findOne({ user_email: user_email.toLowerCase() });
     if (existingUser) {
       return res.redirect('/admin/manageUsers?error=Email already exists');
     }
 
-    // Generate unique user_id
     const lastUser = await User.findOne().sort({ user_id: -1 });
     const newUserId = lastUser ? lastUser.user_id + 1 : 1001;
 
-    // Create new user
     const userData = {
       user_id: newUserId,
       user_name: user_name.trim(),
       user_email: user_email.toLowerCase().trim(),
       user_type,
-      user_password: password, // This will be hashed by the model
+      user_password: password,
       profile_picture: null,
       registration_date: new Date()
     };
@@ -411,11 +433,9 @@ router.post("/manageUsers/add", isAdmin, async (req, res) => {
     
   } catch (error) {
     console.error('Error adding user:', error);
-    
     if (error.code === 11000) {
       return res.redirect('/admin/manageUsers?error=Email already exists');
     }
-    
     res.redirect('/admin/manageUsers?error=Failed to add user: ' + error.message);
   }
 });
@@ -425,7 +445,6 @@ router.post("/manageUsers/update/:id", isAdmin, async (req, res) => {
   try {
     const { user_name, user_email, user_type } = req.body;
     
-    // Check if email is taken by another user
     const existingUser = await User.findOne({ 
       user_email: user_email.toLowerCase(),
       _id: { $ne: req.params.id }
@@ -451,7 +470,6 @@ router.post("/manageUsers/update/:id", isAdmin, async (req, res) => {
 // Delete User - POST
 router.post("/manageUsers/delete/:id", isAdmin, async (req, res) => {
   try {
-    // Check if user has bookings
     const userBookings = await Booking.countDocuments({ user: req.params.id });
     
     if (userBookings > 0) {
@@ -480,7 +498,7 @@ router.post("/manageUsers/resetPassword/:id", isAdmin, async (req, res) => {
       return res.redirect('/admin/manageUsers?error=User not found');
     }
 
-    user.user_password = newPassword; // This will be hashed by the model
+    user.user_password = newPassword;
     await user.save();
     
     res.redirect('/admin/manageUsers?success=Password reset successfully!');
@@ -498,7 +516,6 @@ router.get("/manageUsers/details/:id", isAdmin, async (req, res) => {
       return res.json({ error: 'User not found' });
     }
     
-    // Get user's recent bookings
     const recentBookings = await Booking.find({ user: user._id })
       .populate('facility', 'facility_name facility_type')
       .sort({ createdAt: -1 })
@@ -515,3 +532,270 @@ router.get("/manageUsers/details/:id", isAdmin, async (req, res) => {
     res.json({ error: 'Failed to load user details' });
   }
 });
+
+// ==========================================
+// COMPLAINTS MANAGEMENT ROUTES (FIXED)
+// ==========================================
+
+// View Complaints - GET
+router.get("/viewComplaints", isAdmin, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+    
+    let filterQuery = {};
+    
+    if (req.query.status && req.query.status !== '') {
+      const statusMapping = {
+        'pending': 'Submitted',
+        'in-progress': 'In Progress',
+        'resolved': 'Resolved',
+        'closed': 'Closed'
+      };
+      filterQuery.status = statusMapping[req.query.status] || req.query.status;
+    }
+    
+    if (req.query.priority && req.query.priority !== '') {
+      const priorityMapping = {
+        'low': 'Low',
+        'medium': 'Medium',
+        'high': 'High',
+        'urgent': 'Urgent'
+      };
+      filterQuery.priority = priorityMapping[req.query.priority] || req.query.priority;
+    }
+    
+    if (req.query.category && req.query.category !== '') {
+      const categoryMapping = {
+        'facility': 'Facility',
+        'booking': 'Booking',
+        'technical': 'Technical',
+        'staff': 'Staff',
+        'other': 'Other'
+      };
+      filterQuery.category = categoryMapping[req.query.category] || req.query.category;
+    }
+    
+    if (req.query.search && req.query.search !== '') {
+      filterQuery.$or = [
+        { subject: { $regex: req.query.search, $options: 'i' } },
+        { description: { $regex: req.query.search, $options: 'i' } }
+      ];
+    }
+
+    const complaints = await Complaint.find(filterQuery)
+      .populate('user', 'user_name user_email user_id')
+      .populate('resolved_by', 'user_name user_email')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalComplaints = await Complaint.countDocuments(filterQuery);
+    const totalPages = Math.ceil(totalComplaints / limit);
+
+    const stats = await Promise.all([
+      Complaint.countDocuments({}),
+      Complaint.countDocuments({ status: 'Submitted' }),
+      Complaint.countDocuments({ status: 'Resolved' }),
+      Complaint.countDocuments({ priority: 'Urgent' })
+    ]);
+
+    if (req.query.export === 'csv') {
+      return exportComplaintsCSV(res, complaints);
+    }
+
+    res.render('admin/viewComplaints', {
+      title: 'View Complaints - EduNexus Admin',
+      complaints,
+      currentPage: page,
+      totalPages,
+      totalComplaints: stats[0],
+      pendingComplaints: stats[1],
+      resolvedComplaints: stats[2],
+      urgentComplaints: stats[3],
+      query: req.query,
+      success: req.query.success || null,
+      error: req.query.error || null
+    });
+
+  } catch (error) {
+    console.error('Error fetching complaints:', error);
+    res.render('admin/viewComplaints', {
+      title: 'View Complaints - EduNexus Admin',
+      complaints: [],
+      currentPage: 1,
+      totalPages: 1,
+      totalComplaints: 0,
+      pendingComplaints: 0,
+      resolvedComplaints: 0,
+      urgentComplaints: 0,
+      query: req.query,
+      success: null,
+      error: 'Failed to load complaints'
+    });
+  }
+});
+
+// View Individual Complaint - GET
+router.get("/complaint/:id", isAdmin, async (req, res) => {
+  try {
+    const complaint = await Complaint.findById(req.params.id)
+      .populate('user', 'user_name user_email user_id user_contact')
+      .populate('resolved_by', 'user_name user_email');
+    
+    if (!complaint) {
+      return res.redirect('/admin/viewComplaints?error=Complaint not found');
+    }
+    
+    res.render('admin/complaintDetails', {
+      title: 'Complaint Details - EduNexus Admin',
+      complaint,
+      success: req.query.success || null,
+      error: req.query.error || null
+    });
+
+  } catch (error) {
+    console.error('Error fetching complaint details:', error);
+    res.redirect('/admin/viewComplaints?error=Failed to load complaint details');
+  }
+});
+
+// Update Complaint Status - PATCH (FIXED WITH NOTIFICATIONS)
+router.patch("/complaint/:id/status", isAdmin, async (req, res) => {
+  try {
+    const { status } = req.body;
+    
+    const statusMapping = {
+      'pending': 'Submitted',
+      'in-progress': 'In Progress',
+      'resolved': 'Resolved',
+      'closed': 'Closed'
+    };
+    
+    const mappedStatus = statusMapping[status] || status;
+    const validStatuses = ['Submitted', 'In Progress', 'Resolved', 'Closed'];
+    
+    if (!validStatuses.includes(mappedStatus)) {
+      return res.json({ success: false, message: 'Invalid status' });
+    }
+
+    const complaint = await Complaint.findById(req.params.id);
+    if (!complaint) {
+      return res.json({ success: false, message: 'Complaint not found' });
+    }
+
+    const oldStatus = complaint.status;
+    complaint.status = mappedStatus;
+    complaint.updatedAt = new Date();
+    
+    if (mappedStatus === 'Resolved' || mappedStatus === 'Closed') {
+      complaint.resolved_at = new Date();
+      complaint.resolved_by = req.session.user.id;
+    }
+    
+    await complaint.save();
+
+    // Send notification if status changed
+    try {
+      if (oldStatus !== mappedStatus) {
+        await NotificationService.notifyComplaintStatusUpdate(
+          complaint.user,
+          complaint._id,
+          complaint.subject,
+          mappedStatus
+        );
+      }
+    } catch (notificationError) {
+      console.error('❌ Notification error:', notificationError);
+    }
+    
+    res.json({ success: true, message: 'Status updated and user notified!' });
+
+  } catch (error) {
+    console.error('Error updating complaint status:', error);
+    res.json({ success: false, message: 'Failed to update status' });
+  }
+});
+
+// Delete Complaint - DELETE
+router.delete("/complaint/:id", isAdmin, async (req, res) => {
+  try {
+    const complaint = await Complaint.findById(req.params.id);
+    if (!complaint) {
+      return res.json({ success: false, message: 'Complaint not found' });
+    }
+
+    await Complaint.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Complaint deleted successfully' });
+
+  } catch (error) {
+    console.error('Error deleting complaint:', error);
+    res.json({ success: false, message: 'Failed to delete complaint' });
+  }
+});
+
+// Add Response to Complaint - POST (FIXED WITH NOTIFICATIONS)
+router.post("/complaint/:id/response", isAdmin, async (req, res) => {
+  try {
+    const { response } = req.body;
+    
+    if (!response || response.trim() === '') {
+      return res.redirect(`/admin/complaint/${req.params.id}?error=Response cannot be empty`);
+    }
+
+    const complaint = await Complaint.findById(req.params.id);
+    if (!complaint) {
+      return res.redirect('/admin/viewComplaints?error=Complaint not found');
+    }
+
+    // Update admin response
+    complaint.admin_response = response.trim();
+    
+    // Update status to In Progress if it was Submitted
+    if (complaint.status === 'Submitted') {
+      complaint.status = 'In Progress';
+    }
+    
+    complaint.updatedAt = new Date();
+    await complaint.save();
+
+    // Send notification to user
+    try {
+      await NotificationService.notifyComplaintResponse(
+        complaint.user,
+        complaint._id,
+        complaint.subject,
+        response.trim()
+      );
+    } catch (notificationError) {
+      console.error('❌ Notification error:', notificationError);
+    }
+    
+    res.redirect(`/admin/complaint/${req.params.id}?success=Response added and user notified!`);
+
+  } catch (error) {
+    console.error('Error adding response:', error);
+    res.redirect(`/admin/complaint/${req.params.id}?error=Failed to add response`);
+  }
+});
+
+// Helper function to export complaints as CSV
+function exportComplaintsCSV(res, complaints) {
+  const csvHeader = 'ID,Complaint ID,User Name,Email,Subject,Category,Priority,Status,Date,Description,Admin Response\n';
+  
+  const csvData = complaints.map(complaint => {
+    const date = complaint.createdAt.toLocaleDateString();
+    const description = complaint.description ? complaint.description.replace(/,/g, ';').replace(/\n/g, ' ') : '';
+    const subject = complaint.subject ? complaint.subject.replace(/,/g, ';') : '';
+    const adminResponse = complaint.admin_response ? complaint.admin_response.replace(/,/g, ';').replace(/\n/g, ' ') : '';
+    
+    return `${complaint._id},${complaint.complaint_id},${complaint.user?.user_name || 'N/A'},${complaint.user?.user_email || 'N/A'},${subject},${complaint.category || 'Other'},${complaint.priority || 'Medium'},${complaint.status || 'Submitted'},${date},${description},${adminResponse}`;
+  }).join('\n');
+
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename=complaints_export.csv');
+  res.send(csvHeader + csvData);
+}
+
+module.exports = router;

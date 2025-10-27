@@ -45,6 +45,7 @@ body {
   width: 90%;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 20px;
 }
 
 /* =========================
@@ -121,7 +122,7 @@ body {
 }
 
 /* =========================
-   Header
+   Header - PERFECT ALIGNMENT FOR YOUR STRUCTURE
 ========================= */
 header {
   background-color: white;
@@ -129,29 +130,43 @@ header {
   position: sticky;
   top: 0;
   z-index: 100;
+  width: 100%;
 }
 
 .header-container {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
   align-items: center;
-  padding: 15px 0;
+  padding: 15px 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+  gap: 20px;
 }
 
+/* Left Section - Logo */
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
+  justify-self: start;
+}
+
+.logo i {
+  font-size: 2.5rem !important;
+  color: var(--secondary) !important;
+  width: 50px;
+  text-align: center;
+  flex-shrink: 0;
 }
 
 .logo img {
+  width: 50px;
   height: 50px;
-  margin-left: 10px;
-}
-
-.logo h1 {
-  color: var(--primary);
-  font-size: 1.8rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--secondary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  flex-shrink: 0;
 }
 
 .title {
@@ -162,42 +177,148 @@ header {
 
 .title h1 {
   font-size: 1.8rem;
-  padding-right: 100px;
+  margin: 0;
+  color: var(--primary);
+  font-weight: 700;
 }
 
 .title .tagline {
-  font-size: 1rem;
-  font-weight: normal;
-  color: gray;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--gray);
+  margin: 0;
 }
 
-/* Navbar */
+/* Center Section - Navigation */
+nav {
+  justify-self: center;
+}
+
 nav ul {
   display: flex;
   list-style: none;
-  margin-left: 400px;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+  gap: 40px;
+  justify-content: center;
 }
 
 nav ul li {
-  margin-left: 15px;
+  margin: 0;
 }
 
 nav ul li a {
   text-decoration: none;
   color: var(--dark);
   font-weight: 500;
-  transition: color 0.3s ease;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  font-size: 1rem;
 }
 
 nav ul li a:hover {
   color: var(--secondary);
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+/* Right Section - Auth Buttons */
+.auth-section {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-self: end;
+}
+
+.auth-section .btn {
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 85px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.btn-login {
+  background-color: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+.btn-login:hover {
+  background-color: var(--primary);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.btn-register {
+  background-color: var(--secondary);
+  color: white;
+  border: 1px solid var(--secondary);
+}
+
+.btn-register:hover {
+  background-color: #2980b9;
+  border-color: #2980b9;
+  transform: translateY(-1px);
+}
+
+/* Support for your existing auth-buttons class */
+.auth-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-self: end;
+}
+
+.auth-buttons .nav-links {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.auth-buttons .btn-custom {
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 85px;
+  text-align: center;
+  white-space: nowrap;
+  background-color: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  margin-left: 0;
+}
+
+.auth-buttons .btn-custom:hover {
+  background-color: var(--primary);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.auth-buttons .btn-custom:nth-child(2) {
+  background-color: var(--secondary);
+  color: white;
+  border: 1px solid var(--secondary);
+}
+
+.auth-buttons .btn-custom:nth-child(2):hover {
+  background-color: #2980b9;
+  border-color: #2980b9;
 }
 
 /* =========================
    Hero Section
 ========================= */
 .hero {
-  background: url("/images/campus.png") no-repeat center center/cover;
+  background: url("/images/clg.jpg") no-repeat center center/cover;
   min-height: 90vh;
   display: flex;
   align-items: center;
@@ -581,3 +702,128 @@ footer {
   background-color: var(--secondary);
 }
 
+/* =========================
+   Responsive Design
+========================= */
+@media (max-width: 1200px) {
+  .header-container {
+    grid-template-columns: auto 1fr auto;
+    padding: 15px 20px;
+    gap: 15px;
+  }
+  
+  nav ul {
+    gap: 25px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 20px 15px;
+    text-align: center;
+  }
+  
+  .logo {
+    justify-self: center;
+  }
+  
+  nav {
+    justify-self: center;
+  }
+  
+  nav ul {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .auth-section,
+  .auth-buttons {
+    justify-self: center;
+  }
+  
+  .title h1 {
+    font-size: 1.5rem;
+  }
+  
+  .title .tagline {
+    font-size: 0.85rem;
+  }
+
+  .container {
+    width: 95%;
+    padding: 0 15px;
+  }
+
+  .hero h2 {
+    font-size: 2rem;
+  }
+
+  .section-title h2 {
+    font-size: 2rem;
+  }
+
+  .steps {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .step {
+    max-width: 400px;
+    margin-bottom: 30px;
+  }
+
+  .testimonials-grid,
+  .features-grid,
+  .facilities-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title h1 {
+    font-size: 1.3rem;
+  }
+  
+  .auth-section,
+  .auth-buttons {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  .auth-section .btn,
+  .auth-buttons .btn-custom {
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  nav ul {
+    gap: 10px;
+  }
+  
+  nav ul li a {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .hero {
+    min-height: 70vh;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .section {
+    padding: 60px 0;
+  }
+
+  .cta h2 {
+    font-size: 2rem;
+  }
+}
